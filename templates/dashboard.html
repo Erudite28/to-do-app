@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Stats row -->
+<div class="stats">
+    <div class="stat">
+        <div class="stat-number">{{ total_count }}</div>
+        <div class="stat-label">Total</div>
+    </div>
+    <div class="stat stat-active">
+        <div class="stat-number">{{ active_count }}</div>
+        <div class="stat-label">Active</div>
+    </div>
+    <div class="stat stat-done">
+        <div class="stat-number">{{ completed_count }}</div>
+        <div class="stat-label">Completed</div>
+    </div>
+</div>
+
+<!-- Add form -->
+<div class="card add-card">
+    <form method="post" class="add-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
+        <input type="text" name="title" placeholder="Title" required
+               class="add-title">
+        <input type="text" name="description" placeholder="Description (optional)"
+               class="add-desc">
+        <button type="submit" class="btn-primary btn-add">+ Add</button>
+    </form>
+</div>
+
+<!-- Filter tabs + search -->
+<div class="toolbar">
+    <div class="tabs">
+        <a href="?status=all{% if search_query %}&search={{ search_query }}{% endif %}"
+           class="tab {% if filter_status == 'all' %}active{% endif %}">All</a>
+        <a href="?status=active{% if search_query %}&search={{ search_query }}{% endif %}"
+           class="tab {% if filter_status == 'active' %}active{% endif %}">Active</a>
+        <a href="?status=completed{% if search_query %}&search={{ search_query }}{% endif %}"
+           class="tab {% if filter_status == 'completed' %}active{% endif %}">Completed</a>
+    </div>
+
+    <form method="get" class="search-form">
+        <input type="hidden" name="status" value="{{ filter_status }}">
+        <input type="text" name="search" placeholder="Search todos…"
+               value="{{ search_query }}" class="search-input">
+    </form>
+</div>
+
+<!-- Todo cards -->
+{% if todos %}
+    <div class="todo-grid">
+        {% for todo in todos %}
+            <div class="todo-card {% if todo.completed %}is-done{% endif %}">
+                <div class="todo-card-body">
+                    <div class="todo-card-title">{{ todo.title }}</div>
+                    {% if todo.description %}
+                        <div class="todo-card-desc">{{ todo.description }}</div>
+                    {% endif %}
+                    <div class="todo-card-date">
+                        {{ todo.created_at|date:"M d, Y · H:i" }}
+                    </div>
+                </div>
+
+                <div class="todo-card-actions">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="toggle">
+                        <input type="hidden" name="todo_id" value="{{ todo.id }}">
+                        <button type="submit"
+                                class="icon-btn toggle-btn {% if todo.completed %}done{% endif %}"
+                                title="{% if todo.completed %}Mark as active{% else %}Mark as done{% endif %}">
+                            {% if todo.completed %}↺{% else %}✓{% endif %}
+                        </button>
+                    </form>
+
+                    <form method="post" onsubmit="return confirm('Delete this todo?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="todo_id" value="{{ todo.id }}">
+                        <button type="submit" class="icon-btn delete-btn" title="Delete">🗑</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+<!--{% else %}
+    <div class="empty-state">
+        {% if search_query %}
+            <div class="empty-icon">🔍</div>
+            <p>No todos match "<strong>{{ search_query }}</strong>".</p>
+        {% elif filter_status == 'active' %}
+            <div class="empty-icon">🎉</div>
+            <p>No active todos. Everything's done!</p>
+        {% elif filter_status == 'completed' %}
+            <div class="empty-icon">📭</div>
+            <p>No completed todos yet.</p>
+        {% else %}
+            <div class="empty-icon">📝</div>
+            <p>No todos yet. Add one above to get started.</p>
+        {% endif %}
+    </div>--> 
+{% endif %}
+
+{% endblock %}

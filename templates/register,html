@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <h2>Create an account</h2>
+    <p class="auth-subtitle">Sign up to start managing your todos.</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" required
+               autocomplete="username" autofocus>
+
+        <label for="id_password1">Password</label>
+        <input type="password" name="password1" id="id_password1" required
+               autocomplete="new-password">
+        <small class="help-text">At least 8 characters, not entirely numeric.</small>
+
+        <label for="id_password2">Confirm password</label>
+        <input type="password" name="password2" id="id_password2" required
+               autocomplete="new-password">
+
+        <button type="submit" class="btn-primary">Create account</button>
+    </form>
+
+    <p class="auth-footer">
+        Already have an account? <a href="{% url 'login' %}">Log in</a>
+    </p>
+</div>
+{% endblock %}
